@@ -64,40 +64,30 @@ with st.sidebar:
 if not st.session_state.video_indexed:
     st.markdown("""
 <div class="hero">
-
-    <div class="hero-icon">
-        🎥
-    </div>
-
-    <div class="hero-title">
-        YOUTUBE CHATBOT
-    </div>
-
-    <div class="hero-subtitle">
-        Chat with any YouTube video<br>
-        using AI
-    </div>
-
-    <div class="hero-divider"></div>
-
+<div class="hero-icon">
+🎥
+</div>
+<div class="hero-title">
+YOUTUBE CHATBOT
+</div>
+<div class="hero-subtitle">
+Chat with any YouTube video<br>
+using AI
+</div>
+<div class="hero-divider"></div>
 </div>
 """, unsafe_allow_html=True)
 
 if not st.session_state.video_indexed:
 
     st.markdown("""
-    <div class="welcome-card">
-
-    <h3>👋 Welcome!</h3>
-
-    Paste a YouTube URL in the sidebar.<br><br>
-
-    Click <b>📥 Index Video</b>.<br><br>
-
-    Then start asking questions about the video!
-
-    </div>
-    """, unsafe_allow_html=True)
+<div class="welcome-card">
+<h3>👋 Welcome!</h3>
+Paste a YouTube URL in the sidebar.<br><br>
+Click <b>📥 Index Video</b>.<br><br>
+Then start asking questions about the video!
+</div>
+""", unsafe_allow_html=True)
 
 # ---------------- Chat History ---------------- #
 
