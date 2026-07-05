@@ -6,7 +6,7 @@ from youtube_transcript_api import YouTubeTranscriptApi
 # Backend URL
 # ================================
 
-BACKEND_URL = "https://YOUR-RENDER-APP.onrender.com"
+BACKEND_URL = "https://youtube-rag-chatbot-api.onrender.com"
 
 
 # ================================
