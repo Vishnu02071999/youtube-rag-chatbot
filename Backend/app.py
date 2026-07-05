@@ -1,27 +1,39 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-
+import traceback
 from indexing import YouTubeIndexer
 from chatbot import YouTubeChatbot
 
-# Create FastAPI app
+# -----------------------------------------
+# Create FastAPI App
+# -----------------------------------------
+
 app = FastAPI(
     title="YouTube Chatbot API",
     description="RAG-based chatbot for YouTube videos",
     version="1.0.0"
 )
 
-# Initialize backend services
+# -----------------------------------------
+# Backend Services
+# -----------------------------------------
+
 indexer = YouTubeIndexer()
 chatbot = None
 
 
-# ----------------------------
+# -----------------------------------------
 # Request Models
-# ----------------------------
+# -----------------------------------------
+
+class TranscriptChunk(BaseModel):
+    text: str
+    start: float
+    duration: float
+
 
 class VideoRequest(BaseModel):
-    url: str
+    transcript: list[TranscriptChunk]
 
 
 class QuestionRequest(BaseModel):
@@ -33,15 +45,9 @@ class ClearChatRequest(BaseModel):
     session_id: str
 
 
-# ----------------------------
+# -----------------------------------------
 # Health Check
-# ----------------------------
-
-@app.get("/")
-def home():
-    return {
-        "message": "Welcome to the YouTube Chatbot API!"
-    }
+# -----------------------------------------
 
 @app.get("/")
 def root():
@@ -49,9 +55,10 @@ def root():
         "message": "YouTube Chatbot API is running 🚀"
     }
 
-# ----------------------------
-# Index a YouTube Video
-# ----------------------------
+
+# -----------------------------------------
+# Index Video
+# -----------------------------------------
 
 @app.post("/index")
 def index_video(request: VideoRequest):
@@ -60,10 +67,19 @@ def index_video(request: VideoRequest):
 
     try:
 
-        indexer.index_video(request.url)
+        # Convert Pydantic models to dictionaries
+        transcript = [
+            chunk.model_dump()
+            for chunk in request.transcript
+        ]
 
-        # Reload chatbot with newly created vector store
+        # Create FAISS Vector Store
+        indexer.index_video(transcript)
+
+        # Reload chatbot
         chatbot = YouTubeChatbot()
+
+        # Clear previous chat
         chatbot.clear_chat()
 
         return {
@@ -72,16 +88,15 @@ def index_video(request: VideoRequest):
         }
 
     except Exception as e:
-
         raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+        status_code=500,
+        detail=str(e)
+    )
 
 
-# ----------------------------
+# -----------------------------------------
 # Ask Questions
-# ----------------------------
+# -----------------------------------------
 
 @app.post("/ask")
 def ask_question(request: QuestionRequest):
@@ -92,15 +107,15 @@ def ask_question(request: QuestionRequest):
 
         raise HTTPException(
             status_code=400,
-            detail="Please index a YouTube video first."
+            detail="Please index a video first."
         )
 
     try:
 
         response = chatbot.ask(
-    request.question,
-    request.session_id
-)
+            request.question,
+            request.session_id
+        )
 
         return {
             "question": request.question,
@@ -109,11 +124,19 @@ def ask_question(request: QuestionRequest):
         }
 
     except Exception as e:
+        print("\n" + "=" * 80)
+        traceback.print_exc()
+        print("=" * 80 + "\n")
 
         raise HTTPException(
-            status_code=500,
-            detail=str(e)
-        )
+        status_code=500,
+        detail=str(e)
+    )
+
+
+# -----------------------------------------
+# Clear Chat
+# -----------------------------------------
 
 @app.post("/clear-chat")
 def clear_chat(request: ClearChatRequest):

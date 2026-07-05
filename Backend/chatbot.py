@@ -23,9 +23,10 @@ class YouTubeChatbot:
 
     def __init__(self):
 
-        self.llm = ChatOpenAI(
+        self.llm = ChatOpenAI (
             model="gpt-4o-mini",
-            temperature=0.2
+            temperature=0.2,
+            max_tokens=1000
         )
 
         self.embeddings = OpenAIEmbeddings()
@@ -37,8 +38,8 @@ class YouTubeChatbot:
         )
 
         self.retriever = self.vectorstore.as_retriever(
-            search_type="similarity",
-            search_kwargs={"k": 4}
+            search_type="mmr",
+            search_kwargs={"k": 6, "fetch_k": 10}
         )
 
         self.store = {}
@@ -100,13 +101,16 @@ Otherwise return it unchanged."""
             [
                 (
                     "system",
-                    """You are a helpful AI assistant.
+                    """You are a helpful and highly intelligent AI assistant.
 
-Answer ONLY using the provided transcript context.
+Answer using the provided transcript context.
+Give a thorough, detailed answer — at least 5-6 sentences when the
+context supports it. Explain the reasoning, add relevant detail from
+the context, and elaborate rather than giving a one-line answer.
 
 If the answer is not available in the transcript, simply say:
 
-'I couldn't find that information in the video.'
+'I couldn't find any information related to the context you mentioned in the available knowledge base. Please try rephrasing your question or providing more specific details'
 
 Context:
 {context}
@@ -148,8 +152,9 @@ Context:
         }
         )
 
-      # Retrieve the most relevant documents
-      retrieved_docs = self.retriever.invoke(question)
+      # Use the documents actually retrieved/used by the chain
+      # (avoids re-retrieving with the raw, non-contextualized question)
+      retrieved_docs = response.get("context", [])
 
       timestamp = None
 
