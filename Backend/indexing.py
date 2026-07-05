@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import os
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
@@ -19,7 +20,7 @@ class YouTubeIndexer:
 
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
-            chunk_overlap=200
+            chunk_overlap=100
         )
 
     def split_transcript(self, transcript):
@@ -63,6 +64,14 @@ class YouTubeIndexer:
         """
 
         print("✅ Transcript received from frontend")
+
+        # Save the raw full transcript text too — needed later for
+        # whole-video questions ("summarize this", "what's it about")
+        # that plain chunk retrieval can't answer well.
+        full_text = "\n".join(chunk["text"] for chunk in transcript)
+        os.makedirs("vectorstore", exist_ok=True)
+        with open("vectorstore/full_transcript.txt", "w", encoding="utf-8") as f:
+            f.write(full_text)
 
         documents = self.split_transcript(transcript)
         print("✅ Transcript split into chunks")
