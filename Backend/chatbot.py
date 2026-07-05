@@ -52,13 +52,13 @@ class YouTubeChatbot:
 
         return self.store[session_id]
 
-    def clear_chat(self, session_id: str):
+    def clear_chat(self, session_id="youtube_chat"):
         """
         Clears the chat history for a given session.
         """
-
         if session_id in self.store:
             self.store[session_id].clear()
+    
 
     @staticmethod
     def format_timestamp(seconds: float) -> str:
@@ -178,7 +178,10 @@ if __name__ == "__main__":
         if question.lower() == "exit":
             break
 
-        response = chatbot.ask(question)
+        response = chatbot.ask(
+    question,
+    "youtube_chat"
+       )
 
         print("\nBot:", response["answer"])
 

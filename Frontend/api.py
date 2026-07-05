@@ -47,7 +47,7 @@ def ask_question(question, session_id):
         f"{BACKEND_URL}/ask",
         json={
     "question": question,
-    "session_id": session_id
+    "session_id": st.session_state.session_id
 }
     )
 

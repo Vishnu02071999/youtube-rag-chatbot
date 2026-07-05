@@ -30,11 +30,18 @@ class YouTubeIndexer:
 
     def fetch_transcript(self, url):
         video_id = YouTubeUtils.extract_video_id(url)
+
+        print("=" * 60)
+        print("Original URL :", url)
+        print("Extracted ID :", video_id)
+        print("=" * 60)
+
         api = YouTubeTranscriptApi()
         transcript = api.fetch(
         video_id,
         languages=["en"]
     )
+
         return transcript
 
         

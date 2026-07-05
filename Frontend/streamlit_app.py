@@ -42,6 +42,7 @@ with st.sidebar:
                     index_video(youtube_url)
                     st.session_state.video_indexed = True
                     st.session_state.messages = []
+                    st.session_state.session_id = str(uuid.uuid4())
                     st.success("Video indexed successfully!")
                     st.rerun()
                 except Exception as e:
@@ -54,6 +55,7 @@ with st.sidebar:
             st.session_state.session_id
              )
             st.session_state.messages = []
+            st.session_state.session_id = str(uuid.uuid4())
             st.success("Chat cleared!")
         except Exception as e:
             st.error(str(e))
